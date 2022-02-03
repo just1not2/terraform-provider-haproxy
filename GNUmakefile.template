@@ -1,0 +1,26 @@
+# Copyright: (c) 2022, Justin Béra (@just1not2) <me@just1not2.org>
+# Mozilla Public License Version 2.0 (see LICENSE or https://www.mozilla.org/en-US/MPL/2.0/)
+
+HOSTNAME=registry.terraform.io
+NAMESPACE=just1not2
+NAME=haproxy
+BINARY=terraform-provider-${NAME}
+VERSION=1.0.0
+OS_ARCH=<your architecture>
+
+default: install
+
+build:
+	go build -o ${BINARY}
+
+doc:
+	terraform fmt -recursive
+	tfplugindocs generate
+
+install: build
+	mkdir -p ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/${OS_ARCH}
+	mv ${BINARY} ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/${OS_ARCH}
+
+release:
+	git tag v${VERSION}
+	GITHUB_TOKEN=<your github token> GPG_FINGERPRINT="<your GPG fingerprint>" goreleaser release --rm-dist
